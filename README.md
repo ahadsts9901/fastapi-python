@@ -1,7 +1,7 @@
 ## Learning Backend in FastAPI (Python)
 ### Self learning (Google, Chatgpt, StackOverFlow, Github, Youtube)
 
-- in_progress         === >          hello world
+- done                === >          hello world
 - in_progress         === >          types of input ["body", "formData", "url params", "query params"]
 - in_progress         === >          crud with variable
 - in_progress         === >          crud with mongodb with filters
