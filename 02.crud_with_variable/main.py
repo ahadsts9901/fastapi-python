@@ -62,8 +62,6 @@ def update_todo(todo_id: int, updated_todo = Body(...)):
     todo = next((todo for todo in todos if todo["id"] == todo_id), None)
     if todo is None:
         raise HTTPException(status_code=404, detail="todo not found")
-    print("todo")
-    print(todo)
     if not updated_todo["title"].strip():
         raise HTTPException(status_code=400, detail="title is required and cannot be empty")
     
