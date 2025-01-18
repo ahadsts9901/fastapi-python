@@ -6,7 +6,6 @@ from .users_routes import router as users_router
 from .profile_routes import router as profile_router
 from .chat_routes import router as chat_router
 from config import MONGO_URI
-# from extensions import socketio_app
 
 def create_app():
     app = FastAPI()

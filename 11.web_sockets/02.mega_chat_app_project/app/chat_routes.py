@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from .middleware import jwt_required
 from .models import Chat
 from datetime import datetime
-# from extensions import socketio
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -124,7 +123,7 @@ async def delete_message(message_id: str, current_user: dict = Depends(jwt_requi
         message_id = str(message.id)
         message.delete()
 
-        room = f'message-{message.to_id}'
+        # room = f'message-{message.to_id}'
         # socketio.emit(f'delete-chat-message-{message.to_id}', {'deletedMessageId': message_id})
 
         return {"message": "Message deleted successfully"}
