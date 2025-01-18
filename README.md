@@ -14,4 +14,4 @@
 - done                === >          json web token
 - in_progress         === >          protected routes or role based routes
 - in_progress         === >          web sockets (chat app project)
-- in_progress         === >          static files
+- done                === >          static files
