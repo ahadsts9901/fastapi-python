@@ -12,6 +12,6 @@
 - done                === >          file upload to firebase
 - done                === >          file upload to cloudinary
 - done                === >          json web token
-- in_progress         === >          protected routes or role based routes
+- done                === >          protected routes or role based routes
 - in_progress         === >          web sockets (chat app project)
 - done                === >          static files
