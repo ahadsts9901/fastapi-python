@@ -1,5 +1,5 @@
-from .extensions import socketio
+# from .extensions import socketio
 
-@socketio.on("connect")
-def handle_connect():
-    print("client connected")
+# @socketio.on("connect")
+# def handle_connect():
+#     print("client connected")
