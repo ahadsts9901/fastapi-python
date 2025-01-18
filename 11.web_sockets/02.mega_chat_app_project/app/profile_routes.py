@@ -21,7 +21,15 @@ class UserResponse(BaseModel):
     created_at: str
     updated_at: str
 
-@router.get("/profile", response_model=UserProfileResponse)
+class CurrentuserProfileResponse(BaseModel):
+    message:str
+    data: UserProfileResponse
+
+class DynamicUserProfileResponse(BaseModel):
+    message:str
+    data: UserResponse
+
+@router.get("/profile", response_model=CurrentuserProfileResponse)
 async def get_current_user_profile(current_user: dict = Depends(jwt_required)):
     try:
         user_id = current_user['id']
@@ -30,18 +38,21 @@ async def get_current_user_profile(current_user: dict = Depends(jwt_required)):
             raise HTTPException(status_code=404, detail="User not found")
 
         return {
-            'id': str(user.id),
-            'username': user.username,
-            'email': user.email,
-            'profile_picture': user.profile_picture,
-            'created_at': user.created_at.isoformat(),
-            'updated_at': user.updated_at.isoformat()
+            "message": "current user profile fetched",
+            "data": {
+                'id': str(user.id),
+                'username': user.username,
+                'email': user.email,
+                'profile_picture': user.profile_picture,
+                'created_at': user.created_at.isoformat(),
+                'updated_at': user.updated_at.isoformat()
+            }
         }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail={"message": "Internal server error", "error": str(e)})
 
-@router.get("/profile/{user_id}", response_model=UserProfileResponse)
+@router.get("/profile/{user_id}", response_model=DynamicUserProfileResponse)
 async def get_dynamic_user_profile(user_id: str, current_user: dict = Depends(jwt_required)):
     try:
         user = User.objects(id=user_id).first()
@@ -49,12 +60,15 @@ async def get_dynamic_user_profile(user_id: str, current_user: dict = Depends(jw
             raise HTTPException(status_code=404, detail="User not found")
 
         return {
-            'id': str(user.id),
-            'username': user.username,
-            'email': user.email,
-            'profile_picture': user.profile_picture,
-            'created_at': user.created_at.isoformat(),
-            'updated_at': user.updated_at.isoformat()
+            "message": "dynamic user profile fetched",
+            "data": {
+                'id': str(user.id),
+                'username': user.username,
+                'email': user.email,
+                'profile_picture': user.profile_picture,
+                'created_at': user.created_at.isoformat(),
+                'updated_at': user.updated_at.isoformat()
+            }
         }
 
     except Exception as e:
