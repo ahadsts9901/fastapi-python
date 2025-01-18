@@ -14,7 +14,7 @@ def create_app():
     # Enable CORS
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # Update this to specify allowed origins
+        allow_origins=["http://localhost:5173"],  # Update this to specify allowed origins
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
