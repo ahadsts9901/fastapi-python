@@ -32,7 +32,7 @@ const Chat = ({ userId }: any) => {
   }, []);
 
   const listenSocketChannel = async () => {
-    const socket = io(baseUrl);
+    const socket = io(baseUrl,{transports: ["websocket"]});
 
     socket.on('connect', () => {
       console.log('connected');

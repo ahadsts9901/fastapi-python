@@ -6,6 +6,7 @@ from .users_routes import router as users_router
 from .profile_routes import router as profile_router
 from .chat_routes import router as chat_router
 from config import MONGO_URI
+from extensions import socket_app
 
 def create_app():
     app = FastAPI()
@@ -29,6 +30,7 @@ def create_app():
     app.include_router(users_router, prefix="/api/v1")
     app.include_router(profile_router, prefix="/api/v1")
     app.include_router(chat_router, prefix="/api/v1")
+    app.mount("/socket.io", socket_app)
 
     # Initialize Socket.IO
     # socketio_app.mount_asgi_app(app)
