@@ -64,7 +64,7 @@ async def create_message(data: dict, current_user: dict = Depends(jwt_required))
     except Exception as e:
         raise HTTPException(status_code=500, detail={"message": "Internal server error", "error": str(e)})
 
-@router.get("/messages/{to_id}", response_model=GetMessagesResponse)
+@router.get("/messages/{to_id}", response_model=dict)
 async def get_messages(to_id: str, current_user: dict = Depends(jwt_required)):
     try:
         from_id = current_user["id"]
@@ -77,17 +77,20 @@ async def get_messages(to_id: str, current_user: dict = Depends(jwt_required)):
             }
         ).order_by('-created_at')
 
-        return [
-            {
-                "id": str(msg.id),
-                "from_id": msg.from_id,
-                "to_id": msg.to_id,
-                "text": msg.text,
-                "created_at": msg.created_at.isoformat(),
-                "updated_at": msg.updated_at.isoformat()
-            }
-            for msg in messages
-        ]
+        return {
+            "message": "messages fetched",
+            "data": [
+                {
+                    "id": str(msg.id),
+                    "from_id": msg.from_id,
+                    "to_id": msg.to_id,
+                    "text": msg.text,
+                    "created_at": msg.created_at.isoformat(),
+                    "updated_at": msg.updated_at.isoformat()
+                }
+                for msg in messages
+            ]
+        }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail={"message": "Internal server error", "error": str(e)})
