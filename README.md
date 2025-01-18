@@ -13,5 +13,5 @@
 - done                === >          file upload to cloudinary
 - done                === >          json web token
 - done                === >          protected routes or role based routes
-- in_progress         === >          web sockets (chat app project)
+- done                === >          web sockets (chat app project)
 - done                === >          static files
