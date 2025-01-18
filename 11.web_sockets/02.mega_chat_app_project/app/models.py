@@ -14,8 +14,8 @@ class User(Document):
             "username": self.username,
             "email": self.email,
             "profile_picture": self.profile_picture,
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat()
+            "created_at": self.created_at,
+            "updated_at": self.updated_at
         }
 
 class Chat(Document):
@@ -31,6 +31,6 @@ class Chat(Document):
             "from_id": str(self.from_id),
             "to_id": str(self.to_id),
             "text": str(self.text),
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat()
+            "created_at": self.created_at,
+            "updated_at": self.updated_at
         }
