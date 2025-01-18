@@ -3,6 +3,7 @@ from .middleware import jwt_required
 from .models import Chat
 from datetime import datetime
 from pydantic import BaseModel
+from extensions import socket
 
 router = APIRouter()
 
@@ -54,7 +55,7 @@ async def create_message(data: dict, current_user: dict = Depends(jwt_required))
             "updated_at": new_message.updated_at.isoformat()
         }
 
-        # socketio.emit(f'chat-message-{to_id}', message_data)
+        await socket.emit(f'chat-message-{to_id}', message_data)
         return {
             "message": "message sent",
             "data": message_data
@@ -123,8 +124,8 @@ async def delete_message(message_id: str, current_user: dict = Depends(jwt_requi
         message_id = str(message.id)
         message.delete()
 
-        # room = f'message-{message.to_id}'
-        # socketio.emit(f'delete-chat-message-{message.to_id}', {'deletedMessageId': message_id})
+        room = f'message-{message.to_id}'
+        await socket.emit(f'delete-chat-message-{message.to_id}', {'deletedMessageId': message_id})
 
         return {"message": "Message deleted successfully"}
 
