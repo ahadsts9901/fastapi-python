@@ -1,55 +1,61 @@
-from flask import Blueprint, request, jsonify
+from fastapi import APIRouter, Depends, HTTPException
 from .middleware import jwt_required
 from .models import User
+from pydantic import BaseModel
 
-profile_bp = Blueprint('profile', __name__)
+router = APIRouter()
 
-# Get current user profile
-@profile_bp.route('/profile', methods=['GET'])
-@jwt_required
-def get_current_user_profile():
+class UserProfileResponse(BaseModel):
+    id: str
+    username: str
+    email: str
+    profile_picture: str
+    created_at: str
+    updated_at: str
+
+class UserResponse(BaseModel):
+    id: str
+    username: str
+    email: str
+    profile_picture: str
+    created_at: str
+    updated_at: str
+
+@router.get("/profile", response_model=UserProfileResponse)
+async def get_current_user_profile(current_user: dict = Depends(jwt_required)):
     try:
-        user_id = request.current_user['id']
+        user_id = current_user['id']
         user = User.objects(id=user_id).first()
         if not user:
-            return jsonify({'message': 'user not found'}), 404
+            raise HTTPException(status_code=404, detail="User not found")
 
-        return jsonify({
-            'message': 'current user profile fetched',
-            'data': {
-                'id': str(user.id),
-                'username': user.username,
-                'email': user.email,
-                'profile_picture': user.profile_picture,
-                'created_at': user.created_at,
-                'updated_at': user.updated_at
-            }
-        }), 200
+        return {
+            'id': str(user.id),
+            'username': user.username,
+            'email': user.email,
+            'profile_picture': user.profile_picture,
+            'created_at': user.created_at.isoformat(),
+            'updated_at': user.updated_at.isoformat()
+        }
 
     except Exception as e:
-        return jsonify({"message": "internal server error", "error": str(e)}), 500
+        raise HTTPException(status_code=500, detail={"message": "Internal server error", "error": str(e)})
 
-
-# Get dynamic user profile
-@profile_bp.route('/profile/<string:user_id>', methods=['GET'])
-@jwt_required
-def get_dynamic_user_profile(user_id):
+@router.get("/profile/{user_id}", response_model=UserProfileResponse)
+async def get_dynamic_user_profile(user_id: str, current_user: dict = Depends(jwt_required)):
     try:
         user = User.objects(id=user_id).first()
         if not user:
-            return jsonify({'message': 'user not found'}), 404
-    
-        return jsonify({
-            'message': 'dynamic user profile fetched',
-            'data': {
-                'id': str(user.id),
-                'username': user.username,
-                'email': user.email,
-                'profile_picture': user.profile_picture,
-                'created_at': user.created_at,
-                'updated_at': user.updated_at
-            }
-        }), 200
+            raise HTTPException(status_code=404, detail="User not found")
+
+        return {
+            'id': str(user.id),
+            'username': user.username,
+            'email': user.email,
+            'profile_picture': user.profile_picture,
+            'created_at': user.created_at.isoformat(),
+            'updated_at': user.updated_at.isoformat()
+        }
 
     except Exception as e:
-        return jsonify({"message": "internal server error", "error": str(e)}), 500
+        raise HTTPException(status_code=500, detail={"message": "Internal server error", "error": str(e)})

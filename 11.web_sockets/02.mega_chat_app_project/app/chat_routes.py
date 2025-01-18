@@ -1,25 +1,31 @@
-from flask import Blueprint, jsonify, request
+from fastapi import APIRouter, Depends, HTTPException
 from .middleware import jwt_required
 from .models import Chat
 from datetime import datetime
-from extensions import socketio
+# from extensions import socketio
+from pydantic import BaseModel
 
-chat_bp = Blueprint('chat', __name__)
+router = APIRouter()
 
-# Create a new message
-@chat_bp.route('/message', methods=['POST'])
-@jwt_required
-def create_message():
+class MessageResponse(BaseModel):
+    id: str
+    from_id: str
+    to_id: str
+    text: str
+    created_at: str
+    updated_at: str
+
+@router.post("/message", response_model=MessageResponse)
+async def create_message(data: dict, current_user: dict = Depends(jwt_required)):
     try:
-        data = request.json
         if not data:
-            return jsonify({'message': 'data is required'}), 400
+            raise HTTPException(status_code=400, detail="Data is required")
         if 'to_id' not in data:
-            return jsonify({'message': 'to_id is required'}), 400
+            raise HTTPException(status_code=400, detail="to_id is required")
         if 'message' not in data:
-            return jsonify({'message': 'text message is required'}), 400
+            raise HTTPException(status_code=400, detail="Text message is required")
 
-        from_id = request.current_user["id"]
+        from_id = current_user["id"]
         to_id = data["to_id"]
         message = data["message"]
 
@@ -41,18 +47,16 @@ def create_message():
             "updated_at": new_message.updated_at.isoformat()
         }
 
-        socketio.emit(f'chat-message-{to_id}', message_data)
-        return jsonify({'message': 'message sent successfully', "data": message_data}), 200
-    except Exception as e:
-        print(str(e))
-        return jsonify({"message": "internal server error", "error": str(e)}), 500
+        # socketio.emit(f'chat-message-{to_id}', message_data)
+        return message_data
 
-# Get messages
-@chat_bp.route('/messages/<string:to_id>', methods=['GET'])
-@jwt_required
-def get_messages(to_id):
+    except Exception as e:
+        raise HTTPException(status_code=500, detail={"message": "Internal server error", "error": str(e)})
+
+@router.get("/messages/{to_id}", response_model=list[MessageResponse])
+async def get_messages(to_id: str, current_user: dict = Depends(jwt_required)):
     try:
-        from_id = request.current_user["id"]
+        from_id = current_user["id"]
         messages = Chat.objects(
             __raw__={
                 "$or": [
@@ -62,58 +66,54 @@ def get_messages(to_id):
             }
         ).order_by('-created_at')
 
-        messages_list = [
+        return [
             {
                 "id": str(msg.id),
                 "from_id": msg.from_id,
                 "to_id": msg.to_id,
                 "text": msg.text,
-                "created_at": msg.created_at,
-                "updated_at": msg.updated_at
+                "created_at": msg.created_at.isoformat(),
+                "updated_at": msg.updated_at.isoformat()
             }
             for msg in messages
         ]
 
-        return jsonify({"message": "messages fetched", "data": messages_list}), 200
     except Exception as e:
-        return jsonify({"message": "internal server error", "error": str(e)}), 500
+        raise HTTPException(status_code=500, detail={"message": "Internal server error", "error": str(e)})
 
-# Edit a message
-@chat_bp.route('/message/<string:message_id>', methods=['PUT'])
-@jwt_required
-def edit_message(message_id):
+@router.put("/message/{message_id}", response_model=dict)
+async def edit_message(message_id: str, data: dict, current_user: dict = Depends(jwt_required)):
     try:
-        data = request.json
         if not data or 'message' not in data:
-            return jsonify({'message': 'updated message text is required'}), 400
+            raise HTTPException(status_code=400, detail="Updated message text is required")
 
-        message = Chat.objects(id=message_id, from_id=request.current_user["id"]).first()
+        message = Chat.objects(id=message_id, from_id=current_user["id"]).first()
         if not message:
-            return jsonify({"message": "message not found or unauthorized"}), 404
+            raise HTTPException(status_code=404, detail="Message not found or unauthorized")
 
-        message.message = data['message']
+        message.text = data['message']
         message.updated_at = datetime.utcnow()
         message.save()
 
-        return jsonify({'message': 'message updated successfully'}), 200
-    except Exception as e:
-        return jsonify({"message": "internal server error", "error": str(e)}), 500
+        return {"message": "Message updated successfully"}
 
-# Delete a message
-@chat_bp.route('/message/<string:message_id>', methods=['DELETE'])
-@jwt_required
-def delete_message(message_id):
+    except Exception as e:
+        raise HTTPException(status_code=500, detail={"message": "Internal server error", "error": str(e)})
+
+@router.delete("/message/{message_id}", response_model=dict)
+async def delete_message(message_id: str, current_user: dict = Depends(jwt_required)):
     try:
-        message = Chat.objects(id=message_id, from_id=request.current_user["id"]).first()
+        message = Chat.objects(id=message_id, from_id=current_user["id"]).first()
         if not message:
-            return jsonify({"message": "message not found or unauthorized"}), 404
-        
+            raise HTTPException(status_code=404, detail="Message not found or unauthorized")
+
         message_id = str(message.id)
         message.delete()
 
         room = f'message-{message.to_id}'
-        socketio.emit(f'delete-chat-message-{message.to_id}', {'deletedMessageId': message_id})
+        # socketio.emit(f'delete-chat-message-{message.to_id}', {'deletedMessageId': message_id})
 
-        return jsonify({'message': 'message deleted successfully'}), 200
+        return {"message": "Message deleted successfully"}
+
     except Exception as e:
-        return jsonify({"message": "internal server error", "error": str(e)}), 500
+        raise HTTPException(status_code=500, detail={"message": "Internal server error", "error": str(e)})

@@ -1,19 +1,40 @@
-from flask import Blueprint, request, jsonify
+from fastapi import APIRouter, Depends, HTTPException
 from .middleware import jwt_required
 from .models import User
+from pydantic import BaseModel
 
-users_bp = Blueprint('users', __name__)
+router = APIRouter()
 
-# Get all users for chat
-@users_bp.route('/users', methods=['GET'])
-@jwt_required
-def get_all_users():
+class UserProfileResponse(BaseModel):
+    id: str
+    username: str
+    email: str
+    profile_picture: str
+    created_at: str
+    updated_at: str
+
+class UserResponse(BaseModel):
+    id: str
+    username: str
+    email: str
+    profile_picture: str
+    created_at: str
+    updated_at: str
+
+@router.get("/users", response_model=list[UserResponse])
+async def get_all_users(current_user: dict = Depends(jwt_required)):
     try:
         users = User.objects.all()
-        return jsonify({
-            'message': 'all users fetched',
-            'data': [user.to_dict() for user in users]
-        }), 200
-    
+        return [
+            {
+                'id': str(user.id),
+                'username': user.username,
+                'email': user.email,
+                'profile_picture': user.profile_picture,
+                'created_at': user.created_at.isoformat(),
+                'updated_at': user.updated_at.isoformat()
+            } for user in users
+        ]
+
     except Exception as e:
-        return jsonify({"message": "internal server error", "error": str(e)}), 500
+        raise HTTPException(status_code=500, detail={"message": "Internal server error", "error": str(e)})
