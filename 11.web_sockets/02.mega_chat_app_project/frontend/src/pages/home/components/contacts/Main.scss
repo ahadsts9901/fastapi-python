@@ -1,0 +1,81 @@
+$purple: #7b30f7;
+$lightPurple: #c2b4e0;
+$white: #fff;
+$black: #1c1c1c;
+$lightBlack: #272529;
+$grey: #2d2d2d;
+$imageBg: #dedede;
+
+.header {
+    width: 100%;
+    height: fit-content;
+    background-color: $black;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0.7em;
+    gap: 1em;
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 20;
+
+    h3 {
+        width: fit-content;
+        text-align: left;
+        color: $lightPurple;
+        font-size: 1em;
+    }
+
+    img {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+        object-position: center;
+        border-radius: 200px;
+        background-color: $imageBg;
+        cursor: pointer;
+    }
+
+}
+
+.contact {
+    width: 100%;
+    padding: 0.7em;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 1em;
+    cursor: pointer;
+    background-color: $lightBlack;
+    border-bottom: 1px solid $grey;
+
+    &:hover {
+        background-color: $black;
+    }
+
+    p {
+        width: 100%;
+        text-align: left;
+        color: $white;
+        font-size: 0.8em;
+    }
+
+    img {
+        width: 35px;
+        height: 35px;
+        object-fit: cover;
+        object-position: center;
+        border-radius: 200px;
+        background-color: $imageBg;
+    }
+
+}
+
+.active-contact {
+    background-color: $black;
+}
+
+.logout {
+    margin-left: auto;
+}

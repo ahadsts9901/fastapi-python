@@ -2,3 +2,4 @@ fastapi-env
 __pycache__
 .env
 simple-database-b15ab-firebase-adminsdk-vbe7e-2c49ecc0e9.json
+node_modules
