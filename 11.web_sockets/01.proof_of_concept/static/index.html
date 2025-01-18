@@ -15,9 +15,8 @@
     <div id="messages"></div>
 
     <script>
-        // Update the URL to include the correct route
-        const socket = io('/ws'); // Connecting to the '/ws' route
-    
+        const socket = io("/ws");
+
         // Handle incoming messages
         socket.on('message', (msg) => {
             const messagesDiv = document.getElementById('messages');
@@ -25,7 +24,7 @@
             messageElement.textContent = msg;
             messagesDiv.appendChild(messageElement);
         });
-    
+
         // Send message to server
         function sendMessage() {
             const input = document.getElementById('message');
@@ -33,6 +32,6 @@
             socket.send(message);
             input.value = '';
         }
-    </script>    
+    </script>
 </body>
 </html>
