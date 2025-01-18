@@ -15,7 +15,15 @@ class MessageResponse(BaseModel):
     created_at: str
     updated_at: str
 
-@router.post("/message", response_model=MessageResponse)
+class CreateMessageResponse(BaseModel):
+    message: str
+    data: MessageResponse
+
+class GetMessagesResponse(BaseModel):
+    message: str
+    data: list[MessageResponse]
+
+@router.post("/message", response_model=CreateMessageResponse)
 async def create_message(data: dict, current_user: dict = Depends(jwt_required)):
     try:
         if not data:
@@ -48,12 +56,15 @@ async def create_message(data: dict, current_user: dict = Depends(jwt_required))
         }
 
         # socketio.emit(f'chat-message-{to_id}', message_data)
-        return message_data
+        return {
+            "message": "message sent",
+            "data": message_data
+        }
 
     except Exception as e:
         raise HTTPException(status_code=500, detail={"message": "Internal server error", "error": str(e)})
 
-@router.get("/messages/{to_id}", response_model=list[MessageResponse])
+@router.get("/messages/{to_id}", response_model=GetMessagesResponse)
 async def get_messages(to_id: str, current_user: dict = Depends(jwt_required)):
     try:
         from_id = current_user["id"]
